@@ -15,6 +15,7 @@ proibir_palavras<-function(palavras, data=NULL){
   stop_words
 }
 
+
 permitir_palavras<-function(palavras, data=NULL){
   `%>%`<-magrittr::`%>%`
   `%notin%`<-Negate(`%in%`)
