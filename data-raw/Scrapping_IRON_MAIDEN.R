@@ -13,8 +13,12 @@ for(i in 1:length(LinkTitles)){
                                                                        Time=V3)%>%
     dplyr::mutate(Album=LinkTitles[[i]]['title'])%>%rbind(iron_maiden)%>%
     subset(stringr::str_sub(Song, start = -15)!=' (Instrumental)')->iron_maiden
-
 }
+
+iron_maiden$Song=iron_maiden$Song%>%stringr::str_replace('Love and Hate', 'Love Hate')
+
+
+Lyrics=SiteVagalume('iron maiden',iron_maiden$Song)
 
 
 iron_maiden$Lyrics=ModoTexto(Lyrics)

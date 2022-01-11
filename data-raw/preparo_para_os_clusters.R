@@ -10,7 +10,7 @@ stop_words <-proibir_palavras(c('oh','yow','x4','yeh','chorus','well','can',
                                 'take','now','right','see','done','look',
                                 'another','something','around','ever','upon',
                                 'cause','left','goes','gotta','t','know','yeah',
-                                '*'))
+                                '*','shall','may'))
 
 discografia$Lyrics[21]=discografia$Lyrics[21]%>%
   stringr::str_replace_all('[Rr]un', '*')
@@ -49,6 +49,16 @@ discografia$Lyrics[144]=discografia$Lyrics[144]%>%
 discografia$Lyrics[145]=discografia$Lyrics[145]%>%
   stringr::str_replace_all('valley of death', 'valley of *')
 
+#############correçao de texto##############
+
+for(i in 1:length(discografia$Lyrics)){
+
+  discografia$Lyrics[i]=corpus::text_tokens(discografia$Lyrics,
+                                            stemmer = "en")%>%.[[i]]%>%
+    paste(collapse =" ")
+}
+
+
 ############# Termos mais frequentes por Album ########################
 
 #iron maiden
@@ -60,7 +70,7 @@ wordcloud::wordcloud(iron_maiden$term, iron_maiden$n,
                      max.words=100,random.order=F,
                      colors = RColorBrewer::brewer.pal(8, "Dark2"))
 
-iron_maiden=iron_maiden%>%agrupa_padrao()
+#iron_maiden=iron_maiden%>%agrupa_padrao()
 
 #killers
 
@@ -71,7 +81,7 @@ wordcloud::wordcloud(killers$term, killers$n,
                      max.words=100,random.order=F,
                      colors = RColorBrewer::brewer.pal(8, "Dark2"))
 
-killers=killers%>%agrupa_padrao()
+#killers=killers%>%agrupa_padrao()
 
 #the number of the beast
 
@@ -96,6 +106,7 @@ wordcloud::wordcloud(piece_of_mind$term, piece_of_mind$n,
                      colors = RColorBrewer::brewer.pal(8, "Dark2"))
 
 piece_of_mind=piece_of_mind%>%agrupa_padrao()
+
 #powerslave
 
 powerslave<-termos_frequentes(discografia, 'Powerslave', stop_words)
@@ -265,16 +276,24 @@ colnames(termos)<-c('termo', unique(discografia$Album))
 
 termos[is.na(termos)] <- 0
 
-termos=data.table::transpose(termos,keep.names="rn")%>%
+termos2=data.table::transpose(termos,keep.names="rn")%>%
   janitor::row_to_names(row_number = 1)
 
-colnames(termos)[1]<-'Album'
+colnames(termos2)[1]<-'Album'
 
 
-freq_termos<-apply(termos[,-1], 2,zero_vezes)
-freq_termos<-freq_termos[freq_termos<10]%>%names()
+freq_termos<-apply(termos2[,-1], 2,zero_vezes)
+freq_termos<-freq_termos[freq_termos>=5]%>%names()
 
-termos=termos[ ,c('Album', freq_termos)]
-termos[,c('call','tell','never','say','every')]<- list(NULL)
+
+termos=subset(termos, termo%in%freq_termos)
+
+termos2=termos2[ ,c('Album', freq_termos)]
+#termos2[,c('call','tell','never','say','every')]<- list(NULL)
+termos2[,c("i'm","i'v","you'r","you'v","they'r","they'v","we'r","we'v")]<- list(NULL)
+
+tf_idf=tf_idf(termos2)
 
 readr::write_csv(termos, file = "data-raw/Termos.csv")
+readr::write_csv(tf_idf, file = "data-raw/tf_idf.csv")
+readr::write_csv(discografia, file = "data-raw/iron_maiden2.csv")

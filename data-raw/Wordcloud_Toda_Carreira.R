@@ -29,16 +29,15 @@ top_words <- iron_maiden %>%dplyr::group_by(Song)%>%
   dplyr::ungroup()%>%dplyr::arrange(desc(n))%>%
   subset(n>quantile(n,0.95) & n_songs>9)
 
+jpeg(paste("imagens/wordcloud_all.jpeg",sep=""))
 
 wordcloud::wordcloud(top_words$term, top_words$n,
                      min.freq=10,max.words=50,random.order=F,
                      colors = RColorBrewer::brewer.pal(8, "Dark2"))
 
-wordcloud::wordcloud(top_words$term, top_words$n_songs,
-                     min.freq=10,max.words=50,random.order=F,
-                     colors = RColorBrewer::brewer.pal(8, "Dark2"))
+dev.off()
 
-#wordcloud2::wordcloud2(top_words[,-2],backgroundColor = 'black')
+wordcloud2::wordcloud2(top_words[,-2],backgroundColor = 'black')
 
 top_words%>%head(20)%>%
 ggplot2::ggplot(ggplot2::aes(x=reorder(term,dplyr::desc(n)), y= n), data=.)+
