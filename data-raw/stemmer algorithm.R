@@ -5,7 +5,7 @@
 
 `%>%`<-magrittr::`%>%`
 
-discografia=readr::read_csv('data-raw/iron_maiden.csv')
+discografia=readr::read_csv('data/iron_maiden.csv')
 
 ###adding some terms on stop_words
 #This function has been created on "stop words.R" file
@@ -309,4 +309,4 @@ tf_idf=tf_idf(termos2)
 #exporting
 readr::write_csv(termos, file = "data/Termos.csv")
 readr::write_csv(tf_idf, file = "data/tf_idf.csv")
-readr::write_csv(discografia, file = "data/iron_maiden2.csv")
+readr::write_csv(discografia, file = "data/iron_maiden_stemmer.csv")

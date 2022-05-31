@@ -4,7 +4,7 @@
 `%>%`<-magrittr::`%>%`
 `%notin%`<-Negate(`%in%`)
 
-discografia=readr::read_csv('data/iron_maiden2.csv')
+discografia=readr::read_csv('data/iron_maiden_stemmer.csv')
 termos=readr::read_csv('data/Termos.csv')
 
 tf_idf=readr::read_csv('data/tf_idf.csv')
@@ -83,6 +83,6 @@ n_composers=discografia%>%dplyr::group_by(Album)%>%
 "
 
 
-readr::write_csv(discografia, 'data-raw/iron_maiden2.csv')
-readr::write_csv(termos, 'data-raw/Termos2.csv')
-readr::write_csv(n_composers, 'data-raw/Compositores.csv')
+readr::write_csv(discografia, 'data/iron_maiden_stemmer.csv')
+readr::write_csv(termos, 'data/Termos2.csv')
+readr::write_csv(n_composers, 'data/Compositores.csv')
