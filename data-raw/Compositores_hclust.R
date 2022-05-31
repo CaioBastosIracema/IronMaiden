@@ -1,12 +1,15 @@
-#### CLusters ######
+#### This script uses hierarchical cluster to find possible groups of albuns
+#### based on their terms
 
 `%>%`<-magrittr::`%>%`
 `%notin%`<-Negate(`%in%`)
 
-discografia=readr::read_csv('data-raw/iron_maiden2.csv')
-termos=readr::read_csv('data-raw/Termos.csv')
+discografia=readr::read_csv('data/iron_maiden2.csv')
+termos=readr::read_csv('data/Termos.csv')
 
-tf_idf=readr::read_csv('data-raw/tf_idf.csv')
+tf_idf=readr::read_csv('data/tf_idf.csv')
+
+#Excluding some generic terms
 
 tf_idf[,c('death','life')]<- list(NULL)
 termos=subset(termos, termo%notin%c('death','life'))
@@ -17,16 +20,21 @@ termos=subset(termos, termo%notin%c("i'm","i'v","you'r","you'v",
 
 #tf_idf[,c('call','tell','never','say','every')]<- list(NULL)
 
+
+#normalizing the data
 tf_idf[,-1]=gensvm::gensvm.maxabs.scale(tf_idf[,-1])
 
 
 #termos=termos[,-1:-2]%>%apply(2, var)%>%order(decreasing = T)%>%+2%>%head(20)%>%
  # append(2, 0)%>%termos[,.]
 
+#Applying the ward method/algorithm
+
 distancia=tf_idf[,-1]%>%dist()%>%hclust(method="ward.D")
 
 distancia[["labels"]]<-tf_idf$Album
 
+#Separating the data into 3 groups
 grupos=dendextend::cutree(distancia, k=3)%>%as.data.frame()
 grupos$Album<-rownames(grupos)
 rownames(grupos)<-NULL
@@ -37,10 +45,10 @@ tf_idf=grupos%>%dplyr::inner_join(tf_idf, by='Album')
 
 rm(grupos)
 
-jpeg('imagens/dendograma.jpeg')
+#jpeg('imagens/dendograma.jpeg')
 ggdendro::ggdendrogram(data = distancia, rotate = F)+
   ggplot2::labs(title = "Dendrogram IM Lyrics")
-dev.off()
+#dev.off()
 
 grupos=termos$termo%>%as.data.frame()
 grupos$grupo1=apply(termos[,2:3],1,sum)
@@ -48,7 +56,7 @@ grupos$grupo2=apply(termos[,c(4:6,9)],1,sum)
 grupos$grupo3=apply(termos[,c(7:8,10:18)],1,sum)
 colnames(grupos)[1]<-'Termo'
 
-
+#wordcloud by group
 wordcloud::wordcloud(grupos$Termo, grupos$grupo1,
                      min.freq=2,max.words=50,random.order=F,
                      colors = RColorBrewer::brewer.pal(8, "Dark2"))

@@ -1,7 +1,14 @@
+#This script prepare the dataset with the terms's number of occurrences by Album
+#It includes the use of the stemmer algorithm and the tf-idf algorithm.
+
+#Some functions used here were created on "frequent_terms.R" file
+
 `%>%`<-magrittr::`%>%`
 
 discografia=readr::read_csv('data-raw/iron_maiden.csv')
-#Versos=readRDS('data-raw/Versos.rds')
+
+###adding some terms on stop_words
+#This function has been created on "stop words.R" file
 stop_words <-proibir_palavras(c('oh','yow','x4','yeh','chorus','well','can',
                                 'just','way','go', 'us','like', 'got', 'come',
                                 'away','back','still', 'things','must','let',
@@ -11,6 +18,8 @@ stop_words <-proibir_palavras(c('oh','yow','x4','yeh','chorus','well','can',
                                 'another','something','around','ever','upon',
                                 'cause','left','goes','gotta','t','know','yeah',
                                 '*','shall','may'))
+
+#############Some adjustments to avoid excessive repetitions of some terms##############
 
 discografia$Lyrics[21]=discografia$Lyrics[21]%>%
   stringr::str_replace_all('[Rr]un', '*')
@@ -49,8 +58,8 @@ discografia$Lyrics[144]=discografia$Lyrics[144]%>%
 discografia$Lyrics[145]=discografia$Lyrics[145]%>%
   stringr::str_replace_all('valley of death', 'valley of *')
 
-#############correçao de texto##############
-
+#Stemmer algorithm to remove the commoner morphological and inflexional
+#endings from words in English
 for(i in 1:length(discografia$Lyrics)){
 
   discografia$Lyrics[i]=corpus::text_tokens(discografia$Lyrics,
@@ -59,7 +68,7 @@ for(i in 1:length(discografia$Lyrics)){
 }
 
 
-############# Termos mais frequentes por Album ########################
+############# Most frequent terms by Album ########################
 
 #iron maiden
 
@@ -252,7 +261,7 @@ senjutsu<-senjutsu%>%agrupa_padrao()
 
 
 
-########################## Unindo as bases #############################
+########################## Unite the albuns's databases #############################
 
 
 termos<-iron_maiden%>%dplyr::full_join(killers, by='term')%>%
@@ -272,6 +281,7 @@ termos<-iron_maiden%>%dplyr::full_join(killers, by='term')%>%
   dplyr::full_join(the_book, by='term')%>%
   dplyr::full_join(senjutsu, by='term')
 
+#Some final adjustments like excluding some values and changing columns's name
 colnames(termos)<-c('termo', unique(discografia$Album))
 
 termos[is.na(termos)] <- 0
@@ -292,8 +302,11 @@ termos2=termos2[ ,c('Album', freq_termos)]
 #termos2[,c('call','tell','never','say','every')]<- list(NULL)
 termos2[,c("i'm","i'v","you'r","you'v","they'r","they'v","we'r","we'v")]<- list(NULL)
 
+
+#calculating the tf-idf
 tf_idf=tf_idf(termos2)
 
-readr::write_csv(termos, file = "data-raw/Termos.csv")
-readr::write_csv(tf_idf, file = "data-raw/tf_idf.csv")
-readr::write_csv(discografia, file = "data-raw/iron_maiden2.csv")
+#exporting
+readr::write_csv(termos, file = "data/Termos.csv")
+readr::write_csv(tf_idf, file = "data/tf_idf.csv")
+readr::write_csv(discografia, file = "data/iron_maiden2.csv")

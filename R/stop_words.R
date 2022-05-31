@@ -1,5 +1,6 @@
 proibir_palavras<-function(palavras, data=NULL){
   `%>%`<-magrittr::`%>%`
+  #This function adds terms on the data frame "stop_words"
 
   if(is.data.frame(data)){
     stop_words=data%>%rbind(
@@ -16,14 +17,3 @@ proibir_palavras<-function(palavras, data=NULL){
 }
 
 
-permitir_palavras<-function(palavras, data=NULL){
-  `%>%`<-magrittr::`%>%`
-  `%notin%`<-Negate(`%in%`)
-
-  if(is.data.frame(data)){
-    stop_words=data%>%dplyr::filter(word%notin%palavras)
-  }else{
-    stop_words=tidytext::get_stopwords()%>%dplyr::filter(word%notin%palavras)
-  }
-  stop_words
-}

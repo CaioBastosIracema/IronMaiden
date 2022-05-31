@@ -1,5 +1,6 @@
 termos_frequentes<- function(Data, Disco, stop_words=tidytext::get_stopwords()
                              ){
+  #This function shows the terms's frequency in a Album
   `%>%`<-magrittr::`%>%`
 
 
@@ -34,6 +35,7 @@ agrupar_termos<-function(Album, palavras, substituir){
 }
 
 agrupa_padrao<-function(Album){
+  #this function replaces some similar terms for an equal one
   `%>%`<-magrittr::`%>%`
   agrupamento=Album%>%
     agrupar_termos(c('live','lives','lived','lifes','living','alive'), 'life')%>%
@@ -63,6 +65,7 @@ agrupa_padrao<-function(Album){
 }
 
 zero_vezes<-function(termo){
+  #this function counts how many albuns the term doesn't appear
   `%>%`<-magrittr::`%>%`
 
   zeros=ifelse(as.numeric(termo)>0, 1, 0)%>%sum()
@@ -70,6 +73,7 @@ zero_vezes<-function(termo){
 }
 
 tf_idf<-function(data){
+  #this function calcuate the term frequency–inverse document frequency(tf-idf)
   data[,-1]= apply(data[,-1],2,as.numeric)
   idf=(dim(data)[1]-apply(data[,-1], 2,zero_vezes))/dim(data)[1]
   tf=data[,-1]/apply(data[,-1], 1, sum)

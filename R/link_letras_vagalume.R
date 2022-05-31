@@ -1,4 +1,5 @@
 SiteVagalume<-function(artist, setlist){
+  # this function extracts iron maiden's lyrics from vagalume.com.br
 
   `%>%`<-magrittr::`%>%`
 
@@ -22,6 +23,10 @@ SiteVagalume<-function(artist, setlist){
 }
 
 ModoTexto<-function(Versos){
+  # this function puts the song's verses all together in a string
+  # making the lyrics in a good way to put into a data frame among others
+  # songs's informations
+
   `%>%`<-magrittr::`%>%`
 
   Texto=vector()

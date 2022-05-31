@@ -1,5 +1,9 @@
+#This script does web scraping on www.ironmaiden.com and www.vagalume.com.br
+# to extract the information needed about the band and the song's lyrics.
+
 `%>%`<-magrittr::`%>%`
-#https://www.vagalume.com.br/iron-maiden/discografia/
+
+#scraping on ironmaiden.com and putting all data into the data frame "iron_maiden"
 
 LinkTitles<-xml2::read_html('https://www.ironmaiden.com/discography/studio-albums')%>%
   rvest::html_nodes('#middle a')%>%rvest::html_attrs()
@@ -15,14 +19,19 @@ for(i in 1:length(LinkTitles)){
     subset(stringr::str_sub(Song, start = -15)!=' (Instrumental)')->iron_maiden
 }
 
+#corrects a song's name
 iron_maiden$Song=iron_maiden$Song%>%stringr::str_replace('Love and Hate', 'Love Hate')
 
-
+#scraping on vagalume.com.br
 Lyrics=SiteVagalume('iron maiden',iron_maiden$Song)
 
-
+#new column with the song's lyrics well structured
 iron_maiden$Lyrics=ModoTexto(Lyrics)
 
+#These 2 functions (ModoTexto and SiteVagalume) have been created in
+#the "link_letras_vagalume.R" script
+
+#creating dummys to work better with the composers information
 iron_maiden$Harris<-iron_maiden%>%.$Composers%>%
   stringr::str_detect('Harris')
 iron_maiden$Dickinson<-iron_maiden%>%.$Composers%>%
@@ -42,12 +51,16 @@ iron_maiden$McBrain<-iron_maiden%>%.$Composers%>%
 iron_maiden$Burr<-iron_maiden%>%.$Composers%>%
   stringr::str_detect("Burr")
 
+#Creating a new feature to separate the band's albums by phases (1 to 5)
+
 iron_maiden$Fase= ifelse(iron_maiden$Album%in%c('The X Factor', 'Virtual XI'), 4, 5)%>%
   ifelse(iron_maiden$Album%in%c('No Prayer for the Dying', 'Fear of the Dark'), 3,.)%>%
   ifelse(iron_maiden$Album%in%c('The Number of the Beast', 'Piece of Mind',
                                 'Powerslave', 'Somewhere in Time',
                                 'Seventh Son of a Seventh Son'), 2,.)%>%
   ifelse(iron_maiden$Album%in%c('Iron Maiden', 'Killers'), 1,.)
+
+#Some adjustments on the information about the song's duration
 
 iron_maiden$Time[55]<-'4:40'
 iron_maiden$Seconds=iron_maiden$Time%>%lubridate::ms()%>%
@@ -57,10 +70,9 @@ iron_maiden=iron_maiden%>%dplyr::relocate(Fase, .after=Album)%>%
   dplyr::relocate(Seconds, .after=Time)
 
 
+#Exporting
+readr::write_csv(iron_maiden,'data/iron_maiden.csv')
 
-readr::write_csv(iron_maiden,'data-raw/iron_maiden.csv')
 
-
-#Ler com a função "readRDS"!!!
 
 
